@@ -74,7 +74,7 @@ esustellar/
 
 ## 🛠 Development Status
 
-## 🤝 Contributing
+## 🤝 Contributing Guide
 
 EsuStellar is open-source and beginner-friendly.
 
