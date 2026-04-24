@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useState } from 'react';
-import { SafeAreaView, ScrollView, View, Text, Pressable, StyleSheet } from 'react-native';
+import React, { useState, useCallback } from 'react';
+import { FlatList, RefreshControl, SafeAreaView, View, Text, Pressable, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Badge } from '../../../components/ui/Badge';
 
