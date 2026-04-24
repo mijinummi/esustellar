@@ -36,7 +36,13 @@ export class WalletConnectionService {
     return WalletConnectionService.instance;
   }
 
-  async connectWallet(provider: WalletProvider): Promise<WalletConnection> {
+  /**
+   * Connects to a wallet provider and returns the connection details.
+   * @param provider - The wallet provider to connect to.
+   * @returns A promise that resolves to the wallet connection details.
+   * @throws A WalletConnectionError if the connection fails or the wallet is not supported.
+   */
+  public async connectWallet(provider: WalletProvider): Promise<WalletConnection> {
     try {
       if (provider.id === 'albedo') {
         return await this.connectAlbedo(provider);
@@ -63,6 +69,12 @@ export class WalletConnectionService {
     }
   }
 
+  /**
+   * Connects to the Albedo wallet provider.
+   * @param provider - The wallet provider to connect to.
+   * @returns A promise that resolves to the wallet connection details.
+   * @throws A WalletConnectionError if the connection fails.
+   */
   private async connectAlbedo(provider: WalletProvider): Promise<WalletConnection> {
     if (typeof window === 'undefined') {
       throw new WalletConnectionError('ENVIRONMENT_ERROR', 'Albedo requires browser environment', provider.id);
