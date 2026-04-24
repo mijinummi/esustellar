@@ -9,6 +9,9 @@ import {
   BiometricCapability,
 } from '../../services/security';
 
+// Stub wallet address — replace with real value from wallet context
+const WALLET_ADDRESS = 'GBBD47IF6LWK7P7MDEVSCWR7DPUWV3NY3DTQEVFL4NAT4AQH3ZLLFLA5';
+
 // ── Settings Page ────────────────────────────────────────────────────────────
 
 export default function SettingsPage() {
@@ -30,6 +33,19 @@ export default function SettingsPage() {
   // General status
   const [authenticating, setAuthenticating] = useState(false);
   const [message, setMessage] = useState<{ text: string; type: 'success' | 'error' | 'info' } | null>(null);
+  const [copyToast, setCopyToast] = useState<string | null>(null);
+
+  // ── Copy wallet address ──────────────────────────────────────────────────
+
+  const handleCopyAddress = async () => {
+    try {
+      await navigator.clipboard.writeText(WALLET_ADDRESS);
+      setCopyToast('Wallet address copied to clipboard');
+    } catch {
+      setCopyToast('Failed to copy wallet address');
+    }
+    setTimeout(() => setCopyToast(null), 2500);
+  };
 
   // ── Initial load ─────────────────────────────────────────────────────────
 
@@ -176,6 +192,29 @@ export default function SettingsPage() {
   return (
     <div className="max-w-md mx-auto p-6 space-y-6">
       <h1 className="text-2xl font-bold text-gray-900">Security Settings</h1>
+
+      {/* Copy toast */}
+      {copyToast && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-sm px-4 py-2 rounded-full shadow-lg z-50">
+          {copyToast}
+        </div>
+      )}
+
+      {/* ── Wallet Address Section ─────────────────────────────────────────── */}
+      <section className="space-y-2">
+        <h2 className="text-lg font-semibold text-gray-800">Wallet Address</h2>
+        <div className="flex items-center gap-2 p-3 bg-gray-50 border border-gray-200 rounded-lg">
+          <p className="flex-1 text-xs text-gray-600 font-mono truncate">{WALLET_ADDRESS}</p>
+          <button
+            onClick={handleCopyAddress}
+            aria-label="Copy wallet address"
+            className="shrink-0 p-1.5 rounded-md hover:bg-gray-200 transition-colors"
+            title="Copy wallet address"
+          >
+            📋
+          </button>
+        </div>
+      </section>
 
       {/* Flash message */}
       {message && (
