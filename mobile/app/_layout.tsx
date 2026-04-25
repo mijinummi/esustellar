@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View, ActivityIndicator, StyleSheet } from 'react-native';
 import { Slot, useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { loadLanguage } from '../constants/i18n';
 
 const ONBOARDING_KEY = 'onboardingComplete';
 
@@ -10,14 +11,19 @@ export default function RootLayout() {
   const router = useRouter();
 
   useEffect(() => {
-    AsyncStorage.getItem(ONBOARDING_KEY).then((value) => {
+    async function initialize() {
+      await loadLanguage();
+
+      const value = await AsyncStorage.getItem(ONBOARDING_KEY);
       if (value === 'true') {
         router.replace('/wallet/connect');
       } else {
         router.replace('/onboarding');
       }
       setChecking(false);
-    });
+    }
+
+    initialize();
   }, []);
 
   if (checking) {
