@@ -61,6 +61,7 @@ export default function RootLayout() {
   // ── AppState listener ───────────────────────────────────────────────────
 
   useEffect(() => {
+    const startTime = Date.now();
     const subscription = AppState.addEventListener(
       'change',
       async (nextState: AppStateStatus) => {
@@ -112,6 +113,11 @@ export default function RootLayout() {
       }
 
       setChecking(false);
+
+      const endTime = Date.now();
+      const startupTime = endTime - startTime;
+      console.log(`App startup time: ${startupTime}ms`);
+      // Optionally send to analytics
     });
 
     return () => {
