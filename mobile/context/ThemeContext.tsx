@@ -1,85 +1,104 @@
-import React, { createContext, useContext, useMemo } from 'react';
-import { useColorScheme } from 'react-native';
-import { ColorSchemePreference, useAuthStore } from '../store/authStore';
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
 
-export type ResolvedColorScheme = 'dark' | 'light';
+import {
+  Appearance,
+  ColorSchemeName,
+} from "react-native";
 
-export interface ThemeColors {
-  background: string;
-  card: string;
-  text: string;
-  subtext: string;
-  border: string;
-  accent: string;
-}
+import {
+  getTheme,
+  saveTheme,
+} from "../services/storage/themeStorage";
+
+import { Colors } from "../constants/colors";
+
+type ThemeMode =
+  | "light"
+  | "dark";
 
 interface ThemeContextValue {
-  colorScheme: ColorSchemePreference;
-  resolvedColorScheme: ResolvedColorScheme;
-  colors: ThemeColors;
-  setColorScheme: (value: ColorSchemePreference) => void;
+  theme: ThemeMode;
+
+  colors:
+    typeof Colors.light;
+
+  toggleTheme: () => void;
 }
 
-const LIGHT_COLORS: ThemeColors = {
-  background: '#FFFFFF',
-  card: '#F6F7FB',
-  text: '#111827',
-  subtext: '#4B5563',
-  border: '#D1D5DB',
-  accent: '#0EA5E9',
-};
+const ThemeContext =
+  createContext<
+    ThemeContextValue | undefined
+  >(undefined);
 
-const DARK_COLORS: ThemeColors = {
-  background: '#0B1220',
-  card: '#111B2E',
-  text: '#F3F4F6',
-  subtext: '#9CA3AF',
-  border: '#374151',
-  accent: '#38BDF8',
-};
+export function ThemeProvider({
+  children,
+}: React.PropsWithChildren) {
 
-const ThemeContext = createContext<ThemeContextValue | null>(null);
+  const systemTheme =
+    Appearance.getColorScheme();
 
-export function resolveColorScheme(
-  preference: ColorSchemePreference,
-  systemScheme: 'dark' | 'light' | null | undefined,
-): ResolvedColorScheme {
-  if (preference !== 'system') {
-    return preference;
+  const [theme, setTheme] =
+    useState<ThemeMode>(
+      (systemTheme ??
+        "light") as ThemeMode
+    );
+
+  useEffect(() => {
+    loadTheme();
+  }, []);
+
+  async function loadTheme() {
+    const saved =
+      await getTheme();
+
+    if (
+      saved === "light" ||
+      saved === "dark"
+    ) {
+      setTheme(saved);
+    }
   }
 
-  return systemScheme === 'dark' ? 'dark' : 'light';
-}
+  async function toggleTheme() {
 
-export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const colorScheme = useAuthStore((state) => state.colorScheme);
-  const setColorScheme = useAuthStore((state) => state.setColorScheme);
-  const systemScheme = useColorScheme();
+    const next =
+      theme === "light"
+        ? "dark"
+        : "light";
 
-  const resolvedColorScheme = resolveColorScheme(colorScheme, systemScheme);
+    setTheme(next);
 
-  const colors = resolvedColorScheme === 'dark' ? DARK_COLORS : LIGHT_COLORS;
-
-  const value = useMemo(
-    () => ({
-      colorScheme,
-      resolvedColorScheme,
-      colors,
-      setColorScheme,
-    }),
-    [colorScheme, colors, resolvedColorScheme, setColorScheme],
-  );
+    await saveTheme(next);
+  }
 
   return (
-    <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>
+    <ThemeContext.Provider
+      value={{
+        theme,
+        colors:
+          Colors[theme],
+        toggleTheme,
+      }}
+    >
+      {children}
+    </ThemeContext.Provider>
   );
 }
 
-export function useTheme() {
-  const context = useContext(ThemeContext);
+export function useThemeContext() {
+
+  const context =
+    useContext(ThemeContext);
 
   if (!context) {
-    throw new Error('useTheme must be used within a ThemeProvider');
+    throw new Error(
+      "ThemeProvider missing"
+    );
   }
 
   return context;
