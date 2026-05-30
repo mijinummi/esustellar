@@ -174,3 +174,29 @@ The wallet integration requires:
 - Only public keys are stored locally
 - All sensitive operations happen in the wallet app
 - Connections are read-only by default
+
+## Environment Configuration
+
+### Available Environments
+
+| Environment | File |
+|------------|------|
+| Development | .env.development |
+| Staging | .env.staging |
+| Production | .env.production |
+
+### Example
+
+Copy:
+
+```bash
+cp .env.example .env.development
+```
+
+Update values as needed.
+
+### Validation
+
+The app validates required variables during startup.
+
+If configuration is missing, startup will fail with a descriptive error message.

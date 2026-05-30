@@ -60,3 +60,4 @@ export const isStaging = (): boolean => config.env === 'staging';
 export const isProd = (): boolean => config.env === 'production';
 
 export default config;
+
